@@ -24,12 +24,14 @@ import re
 def pygmentify(body, language):
   lexer = get_lexer_by_name(language)
   formatter = HtmlFormatter()
-  return highlight(body, lexer, formatter)
+  result = re.sub('(^<div class="highlight">)|(<\/div>$)', '', highlight(body, lexer, formatter))
+  return re.sub('(^<pre>)|(<\/pre>$)', '', result).rstrip()
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
         self.response.out.write('Use POST instead! (with params "body" and "language")')
     def post(self):
+        self.response.headers.add_header('Content-Type', 'text/plain')
         self.response.out.write(pygmentify(self.request.get('body'), self.request.get('language')))
 
 def main():
